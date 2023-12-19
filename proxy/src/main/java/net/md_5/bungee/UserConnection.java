@@ -34,6 +34,7 @@ import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
@@ -61,6 +62,8 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.SystemChat;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.GlobalPing;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -159,7 +162,19 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
-        tabListHandler = new ServerUnique( this );
+        ListenerInfo info = getCh().getHandle().attr( PipelineUtils.LISTENER ).get();
+        switch (info.getTabListType() )
+        {
+            case "GLOBAL":
+                tabListHandler = new Global( this );
+                break;
+            case "GLOBAL_PING":
+                tabListHandler = new GlobalPing( this );
+                break;
+            case "SERVER":
+                tabListHandler = new ServerUnique( this );
+                break;
+        }
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         g.addAll( bungee.getConfigurationAdapter().getGroups( getUniqueId().toString() ) );
