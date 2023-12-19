@@ -34,14 +34,15 @@ public class Global extends TabList
         currentPlayerItem.setGamemode( UUID_GAMEMODE_MAP.getOrDefault( player.getUniqueId(), 0 ) );
         currentPlayerItem.setPing( 0 );
         currentPlayerItem.setListed( true );
-        if ( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile() != null ) {
+        if ( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile() != null )
+        {
             currentPlayerItem.setProperties( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile().getProperties() );
         }
         PlayerListItem oldPacket = new PlayerListItem();
         oldPacket.setAction( PlayerListItem.Action.ADD_PLAYER );
         oldPacket.setItems( new PlayerListItem.Item[]
         {
-                currentPlayerItem
+            currentPlayerItem
         } );
 
         PlayerListItemUpdate newPacket = new PlayerListItemUpdate();
@@ -67,7 +68,8 @@ public class Global extends TabList
             item.setUsername( player.getName() );
             item.setGamemode( UUID_GAMEMODE_MAP.getOrDefault( player.getUniqueId(), 0 ) );
             item.setPing( 0 );
-            if ( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile() != null ) {
+            if ( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile() != null )
+            {
                 item.setProperties( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile().getProperties() );
             }
             item.setListed( true );
@@ -170,7 +172,8 @@ public class Global extends TabList
             item.setUsername( player.getName() );
             item.setGamemode( UUID_GAMEMODE_MAP.getOrDefault( player.getUniqueId(), 0 ) );
             item.setPing( 0 );
-            if ( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile() != null ) {
+            if ( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile() != null )
+            {
                 item.setProperties( ( (InitialHandler)player.getPendingConnection() ).getLoginProfile().getProperties() );
             }
             item.setListed( true );
