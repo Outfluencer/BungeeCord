@@ -4,8 +4,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import java.io.DataInputStream;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import se.llbit.nbt.NamedTag;
@@ -83,9 +87,9 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_20:
                 return EntityMap_1_16_2.INSTANCE_1_19_4;
             case ProtocolConstants.MINECRAFT_1_20_2:
-                return EntityMap_1_16_2.INSTANCE_1_20_2;
+                return EntityMap_1_20_2.INSTANCE_1_20_2;
             case ProtocolConstants.MINECRAFT_1_20_3:
-                return EntityMap_1_16_2.INSTANCE_1_20_3;
+                return EntityMap_1_20_2.INSTANCE_1_20_3;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }
@@ -147,6 +151,7 @@ public abstract class EntityMap
     {
         // Need to rewrite the packet because VarInts are variable length
         int readId = DefinedPacket.readVarInt( packet );
+        System.out.println("reada: " + readId);
         int readIdLength = packet.readerIndex() - offset;
         if ( readId == oldId || readId == newId )
         {
@@ -336,6 +341,7 @@ public abstract class EntityMap
     // Handles simple packets
     private static void rewrite(ByteBuf packet, int oldId, int newId, boolean[] ints, boolean[] varints)
     {
+
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
@@ -348,5 +354,19 @@ public abstract class EntityMap
             rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
         }
         packet.readerIndex( readerIndex );
+    }
+
+    static void rewriteSpectate(ByteBuf packet, int readerIndex, int packetIdLength)
+    {
+        UUID uuid = DefinedPacket.readUUID( packet );
+        ProxiedPlayer player;
+        if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
+        {
+            int previous = packet.writerIndex();
+            packet.readerIndex( readerIndex );
+            packet.writerIndex( readerIndex + packetIdLength );
+            DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
+            packet.writerIndex( previous );
+        }
     }
 }
