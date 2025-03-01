@@ -2,7 +2,6 @@ package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.SocketAddress;
@@ -132,14 +131,13 @@ public class ChannelWrapper
         {
             closed = closing = true;
 
+            // force close
             if ( packet != null && ch.isActive() )
             {
-                ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-            } else
-            {
-                ch.flush();
-                ch.close();
+                ch.write( packet, ch.voidPromise() );
             }
+            ch.flush();
+            ch.close();
         }
     }
 
@@ -148,6 +146,7 @@ public class ChannelWrapper
         if ( !closing )
         {
             closing = true;
+            ch.config().setAutoRead( false );
 
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
