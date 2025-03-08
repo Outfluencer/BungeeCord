@@ -33,6 +33,10 @@ public class Team extends DefinedPacket
     private Either<String, BaseComponent> suffix;
     private NameTagVisibility nameTagVisibility;
     private CollisionRule collisionRule;
+    // pre 1.21.5, some old plugins send invalid data that the vanilla client just ignores, see #3799
+    private String mameTagVisibilityString;
+    private String collisionRuleString;
+    //
     private int color;
     private byte friendlyFire;
     private String[] players;
@@ -71,11 +75,10 @@ public class Team extends DefinedPacket
                 collisionRule = CollisionRule.BY_ID[readVarInt( buf )];
             } else
             {
-                nameTagVisibility = readStringMapKey( buf, NameTagVisibility.BY_NAME );
-
+                mameTagVisibilityString = readString( buf );
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
                 {
-                    collisionRule = readStringMapKey( buf, CollisionRule.BY_NAME );
+                    collisionRuleString = readString( buf );
                 }
             }
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
@@ -116,10 +119,10 @@ public class Team extends DefinedPacket
                 writeVarInt( collisionRule.ordinal(), buf );
             } else
             {
-                writeString( nameTagVisibility.getKey(), buf );
+                writeString( mameTagVisibilityString, buf );
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
                 {
-                    writeString( collisionRule.getKey(), buf );
+                    writeString( collisionRuleString, buf );
                 }
             }
 
@@ -157,10 +160,7 @@ public class Team extends DefinedPacket
         ALWAYS( "always" ),
         NEVER( "never" ),
         HIDE_FOR_OTHER_TEAMS( "hideForOtherTeams" ),
-        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" ),
-        // 1.9 (and possibly other versions) appear to treat unknown values differently (always render rather than subject to spectator mode, friendly invisibles, etc).
-        // we allow the empty value to achieve this in case it is potentially useful even though this is unsupported and its usage may be a bug (#3780).
-        UNKNOWN( "" );
+        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" );
         //
         private final String key;
         //
