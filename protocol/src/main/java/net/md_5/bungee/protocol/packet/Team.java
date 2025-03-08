@@ -34,7 +34,7 @@ public class Team extends DefinedPacket
     private NameTagVisibility nameTagVisibility;
     private CollisionRule collisionRule;
     // pre 1.21.5, some old plugins send invalid data that the vanilla client just ignores, see #3799
-    private String mameTagVisibilityString;
+    private String nameTagVisibilityString;
     private String collisionRuleString;
     //
     private int color;
@@ -75,7 +75,7 @@ public class Team extends DefinedPacket
                 collisionRule = CollisionRule.BY_ID[readVarInt( buf )];
             } else
             {
-                mameTagVisibilityString = readString( buf );
+                nameTagVisibilityString = readString( buf );
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
                 {
                     collisionRuleString = readString( buf );
@@ -119,7 +119,7 @@ public class Team extends DefinedPacket
                 writeVarInt( collisionRule.ordinal(), buf );
             } else
             {
-                writeString( mameTagVisibilityString, buf );
+                writeString( nameTagVisibilityString, buf );
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
                 {
                     writeString( collisionRuleString, buf );
