@@ -8,8 +8,8 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.function.Supplier;
-import net.md_5.bungee.nbt.exception.NBTFormatException;
-import net.md_5.bungee.nbt.limit.NBTLimiter;
+import net.md_5.bungee.nbt.exception.NbtFormatException;
+import net.md_5.bungee.nbt.limit.NbtLimiter;
 import net.md_5.bungee.nbt.type.ByteArrayTag;
 import net.md_5.bungee.nbt.type.ByteTag;
 import net.md_5.bungee.nbt.type.CompoundTag;
@@ -66,11 +66,11 @@ public interface Tag
     /**
      * Reads the data into this tag.
      *
-     * @param input the input to read from
+     * @param input   the input to read from
      * @param limiter the limiter for this read operation
      * @throws IOException if an exception occurs during io operations
      */
-    void read(DataInput input, NBTLimiter limiter) throws IOException;
+    void read(DataInput input, NbtLimiter limiter) throws IOException;
 
     /**
      * Writes this tag into a {@link DataOutput}.
@@ -81,33 +81,48 @@ public interface Tag
     void write(DataOutput output) throws IOException;
 
     /**
-     * Reads the data of the {@link DataInput} and parses it into a {@link Tag}.
+     * Reads a {@link Tag} from the given {@link DataInput}, based on the specified tag type.
      *
-     * @param id the nbt type
-     * @param input input to read from
-     * @param limiter limitation of the read data
-     * @return the initialized {@link Tag}
+     * @param id      the nbt type
+     * @param input   the input to read from
+     * @param limiter the limiter for this read operation
+     * @return the deserialized {@link Tag}
      * @throws IOException if an exception occurs during io operations
      */
-    static TypedTag readById(byte id, DataInput input, NBTLimiter limiter) throws IOException
+    static TypedTag readById(byte id, DataInput input, NbtLimiter limiter) throws IOException
     {
         if ( id < END || id > LONG_ARRAY )
         {
-            throw new NBTFormatException( "Invalid tag id: " + id );
+            throw new NbtFormatException( "Invalid tag id: " + id );
         }
-
         TypedTag tag = CONSTRUCTORS[id].get();
         tag.read( input, limiter );
         return tag;
     }
 
-    static NamedTag readNamedTag(DataInput input, NBTLimiter limiter) throws IOException
+    /**
+     * Reads a {@link NamedTag} from the given {@link DataInput}.
+     *
+     * @param input   the data input to read from
+     * @param limiter the limiter for this read operation
+     * @return the deserialized {@link NamedTag}
+     * @throws IOException if an exception occurs during io operations
+     */
+    static NamedTag readNamedTag(DataInput input, NbtLimiter limiter) throws IOException
     {
         NamedTag namedTag = new NamedTag();
         namedTag.read( input, limiter );
         return namedTag;
     }
 
+    /**
+     * Serializes the given {@link TypedTag} into a byte array.
+     * This is the inverse operation of {@link #fromByteArray(byte[])}.
+     *
+     * @param tag the tag to convert
+     * @return the serialized byte array
+     * @throws IOException if an exception occurs during io operations
+     */
     static byte[] toByteArray(TypedTag tag) throws IOException
     {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -117,12 +132,30 @@ public interface Tag
         return byteArrayOutputStream.toByteArray();
     }
 
+
+    /**
+     * Deserializes the given byte array into a {@link TypedTag}.
+     * This is the inverse operation of {@link #toByteArray(TypedTag)}.
+     *
+     * @param data the byte array to read from
+     * @return the deserialized {@link TypedTag}
+     * @throws IOException if an exception occurs during io operations
+     */
     static TypedTag fromByteArray(byte[] data) throws IOException
     {
-        return fromByteArray( data, NBTLimiter.unlimitedSize() );
+        return fromByteArray( data, NbtLimiter.unlimitedSize() );
     }
 
-    static TypedTag fromByteArray(byte[] data, NBTLimiter limiter) throws IOException
+    /**
+     * Deserializes the given byte array into a {@link TypedTag},
+     * with limitations of the {@link NbtLimiter}.
+     *
+     * @param data the byte array to read from
+     * @param limiter the limiter for this read operation
+     * @return the deserialized {@link TypedTag}
+     * @throws IOException if an exception occurs during io operations
+     */
+    static TypedTag fromByteArray(byte[] data, NbtLimiter limiter) throws IOException
     {
         DataInputStream stream = new DataInputStream( new ByteArrayInputStream( data ) );
         byte type = stream.readByte();
