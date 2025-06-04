@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import net.md_5.bungee.nbt.limit.NBTLimiter;
 import net.md_5.bungee.nbt.type.CompoundTag;
 import org.junit.jupiter.api.Test;
 
