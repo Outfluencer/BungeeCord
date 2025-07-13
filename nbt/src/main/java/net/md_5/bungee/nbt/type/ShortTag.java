@@ -6,14 +6,14 @@ import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.NumericTag;
 import net.md_5.bungee.nbt.Tag;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NBTLimiter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShortTag implements TypedTag
+public class ShortTag implements NumericTag
 {
 
     private short value;
@@ -35,5 +35,11 @@ public class ShortTag implements TypedTag
     public byte getId()
     {
         return Tag.SHORT;
+    }
+
+    @Override
+    public byte asByte()
+    {
+        return (byte) ( getValue() & 0xFF );
     }
 }
