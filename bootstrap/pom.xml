@@ -44,6 +44,8 @@
                 <version>3.4.1</version>
                 <configuration>
                     <archive>
+                        <compress>true</compress>
+                        <compressionLevel>9</compressionLevel>
                         <manifestEntries>
                             <Main-Class>net.md_5.bungee.Bootstrap</Main-Class> 
                             <Implementation-Version>${describe}</Implementation-Version>
