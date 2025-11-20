@@ -182,6 +182,11 @@ public class ChannelWrapper
         return ch;
     }
 
+    public int getCompressionThreshold()
+    {
+        return ch.pipeline().get( LengthPrependerAndCompressor.class ).getThreshold();
+    }
+
     public void setCompressionThreshold(int compressionThreshold)
     {
         LengthPrependerAndCompressor compressor = ch.pipeline().get( LengthPrependerAndCompressor.class );
