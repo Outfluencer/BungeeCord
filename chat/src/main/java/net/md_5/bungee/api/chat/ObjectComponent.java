@@ -13,7 +13,8 @@ import net.md_5.bungee.api.chat.objects.ChatObject;
  * It can either display a player's head or an object by a specific sprite and
  * an atlas.
  * <p>
- * Note: this was added in Minecraft 1.21.9.
+ * Note: this was added in Minecraft 1.21.9. The {@link #fallback} was added
+ * in Minecraft 26.1.
  */
 @Getter
 @Setter
@@ -23,6 +24,14 @@ public final class ObjectComponent extends BaseComponent
 {
 
     private ChatObject object;
+
+    /**
+     * The optional fallback component which is displayed if the object cannot
+     * be displayed, and which is used when converting the component to text.
+     * <p>
+     * Note: this was added in Minecraft 26.1.
+     */
+    private BaseComponent fallback;
 
     /**
      * Creates a ObjectComponent from a given ChatObject.
@@ -38,6 +47,22 @@ public final class ObjectComponent extends BaseComponent
     }
 
     /**
+     * Creates a ObjectComponent from a given ChatObject and a fallback
+     * component.
+     *
+     * See {@link net.md_5.bungee.api.chat.objects.PlayerObject} and
+     * {@link net.md_5.bungee.api.chat.objects.SpriteObject}.
+     *
+     * @param object the ChatObject
+     * @param fallback the fallback component, may be null
+     */
+    public ObjectComponent(@NonNull ChatObject object, BaseComponent fallback)
+    {
+        this.object = object;
+        this.fallback = fallback;
+    }
+
+    /**
      * Creates an object component from the original to clone it.
      *
      * @param original the original for the new score component
@@ -46,6 +71,7 @@ public final class ObjectComponent extends BaseComponent
     {
         super( original );
         setObject( original.object );
+        setFallback( original.fallback != null ? original.fallback.duplicate() : null );
     }
 
     @Override
@@ -57,8 +83,10 @@ public final class ObjectComponent extends BaseComponent
     @Override
     protected void toPlainText(StringVisitor builder)
     {
-        // I guess we cannot convert this to plain text
-        // builder.append( this.value );
+        if ( fallback != null )
+        {
+            fallback.toPlainText( builder );
+        }
         super.toPlainText( builder );
     }
 
@@ -66,8 +94,10 @@ public final class ObjectComponent extends BaseComponent
     protected void toLegacyText(StringVisitor builder)
     {
         addFormat( builder );
-        // Same here...
-        // builder.append( this.value );
+        if ( fallback != null )
+        {
+            fallback.toPlainText( builder );
+        }
         super.toLegacyText( builder );
     }
 }

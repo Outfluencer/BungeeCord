@@ -10,6 +10,7 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.api.chat.objects.SpriteObject;
 import net.md_5.bungee.chat.ChatVersion;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
@@ -453,6 +454,25 @@ public class ComponentsTest
                 VersionedComponentSerializer.forVersion( ChatVersion.V1_16 ).toString( score ) );
         assertEquals( "{\"text\":\"20\"}",
                 VersionedComponentSerializer.forVersion( ChatVersion.V1_21_5 ).toString( score ) );
+    }
+
+    @Test
+    public void testObjectComponentFallback()
+    {
+        ObjectComponent sprite = new ObjectComponent( new SpriteObject( null, "item/diamond" ), new TextComponent( "Diamond" ) );
+        String json = ComponentSerializer.toString( sprite );
+        assertEquals( "{\"fallback\":{\"text\":\"Diamond\"},\"sprite\":\"item/diamond\"}", json );
+        assertEquals( sprite, ComponentSerializer.deserialize( json ) );
+        assertEquals( "Diamond", sprite.toPlainText() );
+
+        ObjectComponent parsed = (ObjectComponent) ComponentSerializer.deserialize( "{\"player\":\"Outfluencer\",\"fallback\":\"head\"}" );
+        assertEquals( new TextComponent( "head" ), parsed.getFallback() );
+        assertEquals( "head", parsed.toPlainText() );
+        assertEquals( parsed, parsed.duplicate() );
+
+        ObjectComponent noFallback = new ObjectComponent( new SpriteObject( null, "item/diamond" ) );
+        assertEquals( "{\"sprite\":\"item/diamond\"}", ComponentSerializer.toString( noFallback ) );
+        assertEquals( "", noFallback.toPlainText() );
     }
 
     @Test

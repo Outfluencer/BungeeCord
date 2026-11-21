@@ -9,6 +9,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.UUID;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ObjectComponent;
 import net.md_5.bungee.api.chat.objects.PlayerObject;
 import net.md_5.bungee.api.chat.objects.SpriteObject;
@@ -34,6 +35,7 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
         if ( sprite != null )
         {
             ObjectComponent component = new ObjectComponent( new SpriteObject( atlas, sprite ) );
+            deserializeFallback( object, component, context );
             deserialize( object, component, context );
             return component;
         }
@@ -55,6 +57,7 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
                 validateName( name = player.getAsString() );
             }
             ObjectComponent component = new ObjectComponent( new PlayerObject( new Profile( name, uuid, properties ), hat ) );
+            deserializeFallback( object, component, context );
             deserialize( object, component, context );
             return component;
         }
@@ -67,6 +70,11 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
     {
         JsonObject object = new JsonObject();
         serialize( object, src, context );
+
+        if ( src.getFallback() != null )
+        {
+            object.add( "fallback", context.serialize( src.getFallback() ) );
+        }
 
         if ( src.getObject() instanceof SpriteObject )
         {
@@ -117,6 +125,15 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
         }
 
         throw new JsonParseException( "Could not serialize ObjectComponent: unknown object type " + src.getObject().getClass() );
+    }
+
+    private static void deserializeFallback(JsonObject object, ObjectComponent component, JsonDeserializationContext context)
+    {
+        JsonElement fallback = object.get( "fallback" );
+        if ( fallback != null )
+        {
+            component.setFallback( context.deserialize( fallback, BaseComponent.class ) );
+        }
     }
 
     private static UUID parseUUID(int[] array)
